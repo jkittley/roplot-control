@@ -1,0 +1,92 @@
+body {
+    padding: 10px;
+    margin: 0;
+    background-color: #f7f7f7;
+    overflow: hidden;
+}
+
+#log {
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.draw-zones {
+    fill: #e5f6ff;
+}
+
+.draw-marker {
+    fill: #4a8049;
+}
+
+.hub {
+    fill: #f7f7f7
+}
+
+.mouse-line {
+    stroke: red;
+    stroke-width: 3px;
+    stroke-dasharray: 10;
+    stroke-linecap: round;
+}
+
+#right_menu {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 300px;
+    padding: 10px;
+}
+
+#pen_list  {
+    position: relative;
+    width: 100%;
+}
+
+#right_menu {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#right_menu .list-group-item {
+    padding: 5px;
+}
+
+#pen_list li {
+    cursor: pointer;
+}
+
+#pen_list li.list-title {
+    background-color: #e8fdff;
+    font-weight: 900;
+    cursor: default;
+}
+
+#pen_list li.selected {
+    font-weight: 900;
+    color: #3e56b2;
+}
+
+
+#job_list {
+    position: relative;
+    width: 100%;
+}
+
+#job_list .complete {
+    text-decoration: line-through;
+}
+
+#job_list .current {
+    font-weight: 900;
+    color: green;
+}
+
+.carriage {
+    fill: #a4969e;
+}
+
+.draw-surface {
+    fill: white;
+}

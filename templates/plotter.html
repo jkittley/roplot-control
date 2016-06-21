@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RoPlot</title>
+    <script src="{{ url_for('static', filename='js/d3.min.js') }}" charset="utf-8"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+    <link  rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/plotter.css') }}"/>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+</head>
+<body>
+
+<div id="right_menu">
+    <div id="pen_list" class="panel panel-primary">
+      <div class="panel-heading">Pens</div>
+        <ul class="list-group"></ul>
+    </div>
+
+    <div id="log" class="panel panel-primary"><ul></ul></div>
+
+    <div id="job_list" class="panel panel-primary">
+      <div class="panel-heading">Jobs <button type="button" class="pull-right btn btn-xs btn-warning consume">Consume</button></div>
+      <ul class="list-group"></ul>
+    </div>
+
+
+
+</div>
+
+
+
+<script src="{{ url_for('static', filename='js/roplot.js') }}" charset="utf-8"></script>
+</body>
+</html>
