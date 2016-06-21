@@ -22,7 +22,6 @@
     var svg = null;
     var boom = null;
     var boomAngle = 0;
-    var beltOffset = 0; // Distance belt has moved from center
     var north = null;
     var south = null;
 
@@ -42,8 +41,8 @@
 
         physicalDrawStart: 200, // Closest to centre we can draw in mm
         physicalDrawEnd: 1000, // Furthest from the center
-        virtualDrawStart: scaleToVirtual(200, physicalRadius),
-        virtualDrawEnd: scaleToVirtual(1000, physicalRadius),
+        virtualDrawStart: function() { return scaleToVirtual(config.physicalDrawStart, config.physicalRadius) },
+        virtualDrawEnd: function() { return scaleToVirtual(config.physicalDrawEnd, physicalRadius) },
 
         carriagePairs: [
             {
@@ -146,7 +145,7 @@
             var x = config.carriagePairs[i].beltpos;
             if (max_belt_pos < x) max_belt_pos = x;
         }
-        return config.virtualDrawEnd - max_belt_pos;
+        return config.virtualDrawEnd() - max_belt_pos;
     };
 
     // ----------------------------------------------------
@@ -333,7 +332,7 @@
         // Disable consume buttons
         $('.consume-button').prop('disabled',true);
         // Animate carriages
-        animateCarriages(jobIndex);
+        setTimeout(function() { animateCarriages(jobIndex) }, 0);
         // Rotate the boom
         animateBoom(jobIndex, cb);
     };
@@ -343,11 +342,14 @@
         var job = drawJobs[jobIndex];
         // If there's a pen associated with the job
         if (job.pen !== null && job.pen !== undefined && job.pen.pole === 'south') {
-            to_angle = ((job.d + 180) % 360);
+            abs_angle = ((job.d + 180) % 360);
         } else {
-            to_angle = job.d;
+            abs_angle = job.d;
         }
-        log("Rotating from: ",boomAngle, " to: ", to_angle);
+
+        var to_angle = abs_angle;
+
+        log("Rotating from: ",boomAngle, " to: ", abs_angle, " moving: ", to_angle);
         // Swing it baby
         boom.transition()
           .duration(function () {
@@ -359,7 +361,7 @@
           })
           .each("end", function () {
               if (cb) cb();
-              boomAngle = to_angle;
+              boomAngle = abs_angle;
           });
     };
 
@@ -372,44 +374,26 @@
         // Convert h a percentage of radius to a value
         var h = job.h * radius;
         // Check if withing draw limits
-        if (h > config.virtualDrawEnd) { log("Greater than draw space"); if(cb) cb(false); return; }
-        if (h < config.virtualDrawStart) { log("Less than draw space"); if(cb) cb(false); return; }
+        if (h > config.virtualDrawEnd()) { log("Greater than draw space"); if(cb) cb(false); return; }
+        if (h < config.virtualDrawStart()) { log("Less than draw space"); if(cb) cb(false); return; }
         // Check if in pen limits
-        var min_pos = config.virtualDrawStart + carriage.beltpos;
+        var min_pos = config.virtualDrawStart() + carriage.beltpos;
         var max_pos = maxTravel() + carriage.beltpos;
         if (h > max_pos) { log("Greater than pen space"); if(cb) cb(false); return; }
         if (h < min_pos) { log("Less than pen space"); if(cb) cb(false); return; }
-
-        // Carriage can reach so move it there
-        var carriage_pos = beltOffset + config.virtualDrawStart + carriage.beltpos;
-
-        // Distance to move
-        var belt_needs_to_move_dist = Math.abs(carriage_pos - h);
-
+        // Position from center to move to
+        var from_center = Math.abs(min_pos - h);
+        log("Belt needs to move", from_center);
         // Direction of travel
-        var direction_of_travel = (carriage_pos > h) ? direction_of_travel = 1 : -1;
-
-
-
-        log("Belt needs to move", belt_needs_to_move_dist);
-
-
+        var direction_of_travel = (from_center > h) ? direction_of_travel = 1 : -1;
+        // Animate belt moving
         north.transition()
-            .duration(1000)
-            .attr("transform", "translate(0, "+(direction_of_travel * belt_needs_to_move_dist)+")");
+            .duration(100)
+            .attr("transform", "translate(0, "+(direction_of_travel * from_center)+")");
         south.transition()
-            .duration(1000)
-            .attr("transform", "translate(0, "+(-1 * direction_of_travel * belt_needs_to_move_dist)+")");
+            .duration(100)
+            .attr("transform", "translate(0, "+(-direction_of_travel * from_center)+")");
     };
-
-
-
-
-
-
-
-
-
 
 
     // ----------------------------------------------------
@@ -432,8 +416,8 @@
 
         // Mark drawable area
         var arc = d3.svg.arc()
-            .innerRadius(config.virtualDrawStart)
-            .outerRadius(config.virtualDrawEnd)
+            .innerRadius(config.virtualDrawStart())
+            .outerRadius(config.virtualDrawEnd())
             .startAngle(0)
             .endAngle(2 * Math.PI);
         svg.append("path")
@@ -443,7 +427,7 @@
 
         for (i in config.carriagePairs) {
             svg.append("circle")
-            .attr("r", config.virtualDrawStart + config.carriagePairs[i].beltpos)
+            .attr("r", config.virtualDrawStart() + config.carriagePairs[i].beltpos)
             .attr("cx", ox)
             .attr("cy", oy)
             .attr("class", 'beltpos-ring');
@@ -480,7 +464,7 @@
                 .attr("r", 5)
                 .attr("cx", ox)
                 .attr("cy", function () {
-                    return oy - config.virtualDrawStart - cp.beltpos;
+                    return oy - config.virtualDrawStart() - cp.beltpos;
                 });
 
             south.append("circle")
@@ -488,7 +472,7 @@
                 .attr("r", 5)
                 .attr("cx", ox)
                 .attr("cy", function () {
-                    return oy + config.virtualDrawStart + cp.beltpos;
+                    return oy + config.virtualDrawStart() + cp.beltpos;
                 });
 
             // Add pens
@@ -502,7 +486,7 @@
                     .attr("r", 5)
                     .attr("cx", ox - pen.xoffset)
                     .attr("cy", function() {
-                        var offset = config.virtualDrawStart + cp.beltpos + pen.yoffset;
+                        var offset = config.virtualDrawStart() + cp.beltpos + pen.yoffset;
                         if (pole===north) return oy - offset; else return oy + offset;
                     })
                     .style("fill", pen.color);
