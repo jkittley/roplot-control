@@ -12,24 +12,35 @@
 
 </head>
 <body>
-
-<div id="right_menu">
+<div id="left_menu">
     <div id="pen_list" class="panel panel-primary">
       <div class="panel-heading">Pens</div>
         <ul class="list-group"></ul>
     </div>
 
-    <div id="log" class="panel panel-primary"><ul></ul></div>
-
-    <div id="job_list" class="panel panel-primary">
-      <div class="panel-heading">Jobs <button type="button" class="pull-right btn btn-xs btn-warning consume">Consume</button></div>
-      <ul class="list-group"></ul>
-    </div>
-
-
 
 </div>
 
+<div id="vis" class="text-center"></div>
+
+<div id="right_menu">
+
+    <div id="log" class="panel panel-primary">
+       <div class="panel-heading">Log</div>
+        <ul></ul>
+  </div>
+    <div id="job_list" class="panel panel-primary">
+      <div class="panel-heading">Jobs</div>
+      <div class="panel-body" style="padding: 5px;">
+          <div class="row">
+              <div class="col-md-4"><button type="button" class="btn btn-xs btn-block btn-success consume-button consumeOne">Consume</button></div>
+              <div class="col-md-4"><button type="button" class="btn btn-xs btn-block btn-warning consume-button consumeAll">All</button></div>
+              <div class="col-md-4"><button type="button" class="btn btn-xs btn-block btn-danger consumeStop" disabled>Stop</butto></div>
+          </div>
+      </div>
+      <ul class="list-group"></ul>
+    </div>
+</div>
 
 
 <script src="{{ url_for('static', filename='js/roplot.js') }}" charset="utf-8"></script>

@@ -22,12 +22,37 @@ body {
 .hub {
     fill: #f7f7f7
 }
+.beltpos-ring {
+    stroke: white;
+    stroke-width: 2px;
+    fill: transparent;
+}
 
 .mouse-line {
     stroke: red;
     stroke-width: 3px;
     stroke-dasharray: 10;
     stroke-linecap: round;
+}
+
+
+#left_menu {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 300px;
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#vis {
+    position: absolute;
+    left: 305px;
+    top: 10px;
+    right: 305px;
+    bottom: 10px;
 }
 
 #right_menu {
@@ -37,16 +62,16 @@ body {
     height: 100%;
     width: 300px;
     padding: 10px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
+
+
+
 
 #pen_list  {
     position: relative;
     width: 100%;
-}
-
-#right_menu {
-    overflow-y: scroll;
-    overflow-x: hidden;
 }
 
 #right_menu .list-group-item {
@@ -84,7 +109,7 @@ body {
 }
 
 .carriage {
-    fill: #a4969e;
+    fill: #000;
 }
 
 .draw-surface {

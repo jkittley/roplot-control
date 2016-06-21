@@ -7,20 +7,24 @@
     // Globals
     // ----------------------------------------------------
 
-    var doc = $(window.document);
+    var vis = $('#vis');
     var padding = 10;
-    var diameter = Math.min(doc.width()-padding*2, doc.height()-padding*2);
+    var diameter = Math.min(vis.width()-padding*2, vis.height()-padding*2);
     var radius = diameter / 2;
     var physicalRadius = 1200;
     var ox = radius,
         oy = radius;
     var drawJobs = [];
     var currentJobIndex = null;
+    var emergencyStop = false;
     var selectedCarriage = null;
     var selectedPen = null;
     var svg = null;
     var boom = null;
     var boomAngle = 0;
+    var beltOffset = 0; // Distance belt has moved from center
+    var north = null;
+    var south = null;
 
     var scaleToVirtual = function (value, physicalRadius) {
         var a = Math.max(physicalRadius, radius);
@@ -82,7 +86,7 @@
             },
             {
                 id: 2,
-                beltpos: scaleToVirtual(500, physicalRadius), // Relative to physicalDrawStart
+                beltpos: scaleToVirtual(400, physicalRadius), // Relative to physicalDrawStart so = physicalDrawEnd - physicalDrawStart / 2
                 pens: [{
                         id: 1,
                         name: 'Outer red',
@@ -133,10 +137,17 @@
         else                           { radians = Math.PI*1.5 + Math.asin(off_y / off_c);  }
         if (isNaN(radians)) radians = 0;
         var degrees = 180/Math.PI * radians;
-        return { d: Math.round(degrees), r: radians, h: Math.round(off_c / radius), original_x: x, original_y: y };
+        return { d: Math.round(degrees), r: radians, h: off_c / radius, original_x: x, original_y: y };
     };
 
-
+    var maxTravel = function() {
+        var max_belt_pos = 0;
+        for (i in config.carriagePairs) {
+            var x = config.carriagePairs[i].beltpos;
+            if (max_belt_pos < x) max_belt_pos = x;
+        }
+        return config.virtualDrawEnd - max_belt_pos;
+    };
 
     // ----------------------------------------------------
     // UI
@@ -149,7 +160,7 @@
         $.each(drawJobs, function (k,v) {
             var li = $('<li></li>');
                 li.addClass("list-group-item");
-                li.html('Angle: '+v.d+' h: '+v.h*radius+' pen: '+((v.pen !==null) ? v.pen.name : 'None'));
+                li.html('Angle: '+v.d+' h: '+Math.round(v.h*radius)+' pen: '+((v.pen !==null) ? v.pen.name : 'None'));
             if (v.hasOwnProperty('complete')) li.addClass('complete');
             if (k===processingIndex) li.addClass('current');
             jobList.append(li);
@@ -232,7 +243,7 @@
         drawJobs.push(pos);
         if (pos.pen!==null) {
             svg.append('circle')
-                .attr('r', 10)
+                .attr('r', 4)
                 .attr('cx', pos.original_x)
                 .attr('cy', pos.original_y)
                 .attr('fill', pos.pen.color)
@@ -270,16 +281,40 @@
         execJob(currentJobIndex);
     };
 
-    var execJob = function(jobIndex) {
+    var execAllJobs = function() {
+        if (emergencyStop) {
+                emergencyStop = false;
+                log("Emergency Stop Applied");
+                $('.consumeStop').prop('disabled', true);
+                $('.consume-button').prop('disabled',false);
+                return;
+        }
+        if (currentJobIndex===null && drawJobs.length > 0) {
+            currentJobIndex = 0;
+        }
+        if (currentJobIndex < drawJobs.length) {
+            $('.consumeStop').prop('disabled', false);
+            setTimeout(function() {
+                execJob(currentJobIndex, execAllJobs)
+            },1000);
+        } else {
+            $('.consumeStop').prop('disabled', true);
+        }
+    };
+
+    var execJob = function(jobIndex, cb) {
+        // Disable consume buttons
+        $('.consume-button').prop('disabled',true);
         // Highlight job as in progress
         updateJobsList(jobIndex);
         // Animate Job
         animateJob(jobIndex, function() {
             removeJob(jobIndex);
             currentJobIndex++;
-            $('.consume').prop('disabled',false);
+            $('.consume-button').prop('disabled',false);
             drawJobs[jobIndex].complete = true;
             updateJobsList();
+            if (cb) cb();
         });
     };
 
@@ -290,14 +325,13 @@
     };
 
 
-
     // ----------------------------------------------------
     // Animation
     // ----------------------------------------------------
 
     var animateJob = function(jobIndex, cb) {
         // Disable consume buttons
-        $('.consume').prop('disabled',true);
+        $('.consume-button').prop('disabled',true);
         // Animate carriages
         animateCarriages(jobIndex);
         // Rotate the boom
@@ -334,42 +368,38 @@
         var job = drawJobs[jobIndex];
         var pen = (job.pen === undefined) ? null : job.pen;
         if (pen===null) { log("No pen selected"); if(cb) cb(false); return; }
-
+        var carriage = pen.carriage;
+        // Convert h a percentage of radius to a value
         var h = job.h * radius;
-
+        // Check if withing draw limits
         if (h > config.virtualDrawEnd) { log("Greater than draw space"); if(cb) cb(false); return; }
         if (h < config.virtualDrawStart) { log("Less than draw space"); if(cb) cb(false); return; }
+        // Check if in pen limits
+        var min_pos = config.virtualDrawStart + carriage.beltpos;
+        var max_pos = maxTravel() + carriage.beltpos;
+        if (h > max_pos) { log("Greater than pen space"); if(cb) cb(false); return; }
+        if (h < min_pos) { log("Less than pen space"); if(cb) cb(false); return; }
+
+        // Carriage can reach so move it there
+        var carriage_pos = beltOffset + config.virtualDrawStart + carriage.beltpos;
+
+        // Distance to move
+        var belt_needs_to_move_dist = Math.abs(carriage_pos - h);
+
+        // Direction of travel
+        var direction_of_travel = (carriage_pos > h) ? direction_of_travel = 1 : -1;
 
 
-        log(h);
 
-        //
-        // if (pen===null) return;
-        // if (h >= pen.carriage.virtualDrawStart && h <= pen.carriage.virtualDrawEnd) {
-        //     // within drawable bounds
-        //     animateCarriages(prev, next);
-        // } else {
-        //     log("Not in range of selected pen", h, pen.carriage.virtualDrawStart, "><", pen.carriage.virtualDrawEnd);
-        // }
-        //
-        //
-        // var distance = (next.h * radius) - next.virtualDrawStart;
-        // log(distance);
-        //
-        // $.each(drawSettings.carriagePairs, function (key, pair) {
-        //     $.each(pair.pens, function (k, pen) {
-        //         console.log(pen.circle.attr('cx'));
-        //         console.log(pen.circle.attr('cy'));
-        //     });
-            // pair.north.selectAll('circle')
-            //   .transition()
-            //   .duration(100)
-            //   .attr("cy", function() { return oy - pair.virtualDrawStart + distance; });
-            // pair.south.selectAll('circle')
-            //   .transition()
-            //   .duration(100)
-            //   .attr("cy", function() { return oy + pair.virtualDrawStart + distance; });
-        // });
+        log("Belt needs to move", belt_needs_to_move_dist);
+
+
+        north.transition()
+            .duration(1000)
+            .attr("transform", "translate(0, "+(direction_of_travel * belt_needs_to_move_dist)+")");
+        south.transition()
+            .duration(1000)
+            .attr("transform", "translate(0, "+(-1 * direction_of_travel * belt_needs_to_move_dist)+")");
     };
 
 
@@ -403,7 +433,7 @@
         // Mark drawable area
         var arc = d3.svg.arc()
             .innerRadius(config.virtualDrawStart)
-            .outerRadius(config.virtualDrawEnd-1)
+            .outerRadius(config.virtualDrawEnd)
             .startAngle(0)
             .endAngle(2 * Math.PI);
         svg.append("path")
@@ -411,6 +441,13 @@
             .attr("class", "draw-zones")
             .attr("transform", "translate("+ox+","+oy+")");
 
+        for (i in config.carriagePairs) {
+            svg.append("circle")
+            .attr("r", config.virtualDrawStart + config.carriagePairs[i].beltpos)
+            .attr("cx", ox)
+            .attr("cy", oy)
+            .attr("class", 'beltpos-ring');
+        }
     };
 
     var buildBoom = function (svg) {
@@ -431,8 +468,8 @@
             .attr("id", "carriages");
 
         // Great groups for north and south
-        var north = carriages.append("g").attr("id","north-belt");
-        var south = carriages.append("g").attr("id","south-belt");
+        north = carriages.append("g").attr("id","north-belt");
+        south = carriages.append("g").attr("id","south-belt");
 
         for (c in config.carriagePairs) {
 
@@ -446,29 +483,30 @@
                     return oy - config.virtualDrawStart - cp.beltpos;
                 });
 
-            // data.south.append("circle")
-            //     .attr('class', 'carriage')
-            //     .attr("r", 10)
-            //     .attr("cx", ox)
-            //     .attr("cy", function () {
-            //         return oy + data.virtualDrawStart;
-            //     });
-            //
-            // for (i in data.pens) {
-            //     var pen = data.pens[i];
-            //     var pole = (pen.pole === 'north') ? data.north : data.south;
-            //     // Pens
-            //     pen.circle = pole.append("circle")
-            //         .attr('class', 'pen')
-            //         .attr("r", 10)
-            //         .attr("cx", function () {
-            //             return pen.xoffset + 1 * pole.select('.carriage').attr('cx');
-            //         })
-            //         .attr("cy", function () {
-            //             return pen.yoffset + 1 * pole.select('.carriage').attr('cy');
-            //         })
-            //         .style("fill", pen.color);
-            // }
+            south.append("circle")
+                .attr('class', 'carriage')
+                .attr("r", 5)
+                .attr("cx", ox)
+                .attr("cy", function () {
+                    return oy + config.virtualDrawStart + cp.beltpos;
+                });
+
+            // Add pens
+            for (i in cp.pens) {
+                var pen  = cp.pens[i];
+                var pole = (pen.pole === 'north') ? north : south;
+
+                // Pens
+                pen.circle = pole.append("circle")
+                    .attr('class', 'pen')
+                    .attr("r", 5)
+                    .attr("cx", ox - pen.xoffset)
+                    .attr("cy", function() {
+                        var offset = config.virtualDrawStart + cp.beltpos + pen.yoffset;
+                        if (pole===north) return oy - offset; else return oy + offset;
+                    })
+                    .style("fill", pen.color);
+            }
 
         }
     };
@@ -506,7 +544,7 @@
     // Main
     // ----------------------------------------------------
 
-    svg = d3.select("body").append("svg")
+    svg = d3.select("#vis").append("svg")
             .attr("width", diameter)
             .attr("height", diameter);
 
@@ -518,10 +556,9 @@
     updateJobsList();
 
 
-    d3.select(".consume")
-        .on("click", function() {
-            execNextJob();
-        });
+    d3.select(".consumeOne").on("click", function() {  execNextJob();  });
+    d3.select(".consumeAll").on("click", function() {  execAllJobs();  });
+    d3.select(".consumeStop").on("click", function() {  emergencyStop = true;  });
 
     $(".pen-button").on("click", setPen);
     $(".pen-unset").on("click", unSetPen);
