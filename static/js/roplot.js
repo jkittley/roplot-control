@@ -129,7 +129,7 @@
         else if (off_x<0  && off_y<0)  { radians = Math.PI + Math.asin(Math.abs(off_x) / off_c);  }
         else                           { radians = Math.PI*1.5 + Math.asin(off_y / off_c);  }
         if (isNaN(radians)) radians = 0;
-        var degrees = 180/Math.PI * radians;
+        var degrees = radianToDegree(radians);
         return { d: degrees, r: radians, h: off_c / radius, new_x: off_x, new_y: off_y, original_x: x, original_y: y };
     };
 
@@ -141,6 +141,15 @@
         }
         return config.virtualDrawEnd() - max_belt_pos;
     };
+
+    var degreeToRadian = function (degrees) {
+        return Math.PI/180 * degrees;
+    };
+
+    var radianToDegree = function (radians) {
+         return 180/Math.PI * radians;
+    };
+
 
     // ----------------------------------------------------
     // UI
@@ -366,12 +375,7 @@
     var execJob = function(jobIndex, cb) {
         // Inform hardwar
         var job = drawJobs[jobIndex];
-        sm.emit({
-            d: job.d,
-            r: job.r,
-            h: job.h,
-            p: (job.pen!==null) ? job.pen.id : "none"
-        });
+        broadcastJob(job.d, job.r, job.h, job.p, 0);
 
         // Disable consume buttons
         $('.consume-button').prop('disabled',true);
@@ -384,6 +388,15 @@
             $('.consume-button').prop('disabled',false);
             if (cb) cb();
         });
+    };
+
+    var broadcastJob = function(d, r, h, pen, forceDirection) {
+        // force_direction -1 CCW, 0 Auto, 1 CW
+        var pen2 = (pen === null || pen === undefined || pen.id === undefined) ? "none" : pen.id;
+        var frcd = (forceDirection === null || forceDirection === undefined) ? 0 : forceDirection;
+        var data = { d: d, r: r, h: h, p: pen2, f:frcd };
+        console.log("Broadcasting", data);
+        sm.emit(data);
     };
 
     var removeJob = function(jobIndex) {
@@ -419,6 +432,10 @@
         rotateBoom(abs_angle, cb);
     };
 
+    var manuallyRotateBoom = function (abs_angle, cb, force_dir) {
+        broadcastJob(abs_angle,degreeToRadian(abs_angle),"none","none",force_dir);
+        rotateBoom(abs_angle, cb, force_dir);
+    };
 
     var rotateBoom = function(abs_angle, cb, force_dir) {
         // Make sure its a number
@@ -731,6 +748,6 @@
     $(".pen-unset").on("click", unSetPen);
 
     // Public API
-    window.rotateBoom = rotateBoom;
+    window.rotateBoom = manuallyRotateBoom;
     window.removeJob = removeJob;
 })(window, jQuery);
