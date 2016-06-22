@@ -6,7 +6,17 @@ body {
 }
 
 #log {
+    position: relative;
     height: 200px;
+    overflow: hidden;
+}
+
+.panel-scroller {
+    position: absolute;
+    top: 42px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -97,6 +107,7 @@ body {
 #job_list {
     position: relative;
     width: 100%;
+
 }
 
 #job_list .complete {

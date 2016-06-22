@@ -114,7 +114,7 @@
         var msg = "";
         for (x in arguments) msg += " "+arguments[x];
         $('#log ul').append('<li>'+msg+'</li>');
-        $('#log').scrollTop($('#log').height());
+        $('#log .panel-scroller').scrollTop($('#log ul').height());
         console.log(arguments);
     };
 
