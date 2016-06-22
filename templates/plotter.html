@@ -14,11 +14,21 @@
 <body>
 <div id="left_menu">
     <div id="pen_list" class="panel panel-primary">
-      <div class="panel-heading">Pens</div>
+        <div class="panel-heading">Pens</div>
         <ul class="list-group"></ul>
     </div>
-
-
+    <div id="manual_contols" class="panel panel-primary">
+        <div class="panel-heading">Manual Control</div>
+        <div class="panel-body">
+            <form class="form-inline">
+              <div class="form-group">
+                <label for="man_angle">Rotate to: </label>
+                <input type="number" min=0 max=359 class="form-control" id="man_angle" placeholder="Angle 0-360">
+              </div>
+              <button type="button" onclick="rotateBoom($('#man_angle').val())" class="btn btn-default">Go</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <div id="vis" class="text-center"></div>

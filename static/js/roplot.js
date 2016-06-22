@@ -346,8 +346,28 @@
         } else {
             abs_angle = job.d;
         }
+        rotateBoom(abs_angle, cb);
+    };
+
+
+    var rotateBoom = function(abs_angle, cb) {
+
+        var CW  = 1;
+        var CCW = -1;
+        var dir = (abs_angle > boomAngle) ? CW : CCW;
+        var diff_cw=0, diff_ccw=0;
+        if (dir===CW) {
+            diff_cw  = Math.abs(abs_angle - boomAngle);
+            diff_ccw = 360 - Math.abs(abs_angle - boomAngle);
+        } else {
+            diff_cw = 360 - Math.abs(abs_angle - boomAngle);
+            diff_ccw  = Math.abs(abs_angle - boomAngle);
+        }
+
+        console.log("CCW",diff_ccw, "CW", diff_cw);
 
         var to_angle = abs_angle;
+
 
         log("Rotating from: ",boomAngle, " to: ", abs_angle, " moving: ", to_angle);
         // Swing it baby
@@ -546,5 +566,8 @@
 
     $(".pen-button").on("click", setPen);
     $(".pen-unset").on("click", unSetPen);
+
+    // Public API
+    window.rotateBoom = rotateBoom;
 
 })(window, jQuery);
