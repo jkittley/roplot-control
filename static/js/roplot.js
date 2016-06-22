@@ -136,7 +136,7 @@
         else                           { radians = Math.PI*1.5 + Math.asin(off_y / off_c);  }
         if (isNaN(radians)) radians = 0;
         var degrees = 180/Math.PI * radians;
-        return { d: Math.round(degrees), r: radians, h: off_c / radius, original_x: x, original_y: y };
+        return { d: degrees, r: radians, h: off_c / radius, original_x: x, original_y: y };
     };
 
     var maxTravel = function() {
@@ -159,7 +159,15 @@
         $.each(drawJobs, function (k,v) {
             var li = $('<li></li>');
                 li.addClass("list-group-item");
-                li.html('Angle: '+v.d+' h: '+Math.round(v.h*radius)+' pen: '+((v.pen !==null) ? v.pen.name : 'None'));
+                var html  = '<div class="row">';
+                    html += '<div class="col-md-4"><i class="fa fa-compass" aria-hidden="true"></i> '+Math.round(v.d)+'&deg; ';
+                    html += '</div>';
+                    html += '<div class="col-md-4"><i class="fa fa-arrows-h" aria-hidden="true"></i> '+Math.round(v.h*radius)+';'
+                    html += '</div>';
+                    html += '<div class="col-md-4"><i class="fa fa-pencil" aria-hidden="true"></i> '+((v.pen !==null) ? v.pen.name : 'None');
+                    html += '</div>';
+                    html += '</div>';
+                li.html(html);
             if (v.hasOwnProperty('complete')) li.addClass('complete');
             if (k===processingIndex) li.addClass('current');
             jobList.append(li);
@@ -239,7 +247,6 @@
     // Add point to drawing tasks
     var addJob = function(pos) {
         pos.pen = getPen();
-        drawJobs.push(pos);
         if (pos.pen!==null) {
             svg.append('circle')
                 .attr('r', 4)
@@ -263,6 +270,8 @@
               .attr('fill', 'grey')
               .attr('class', 'marker-' + (drawJobs.length - 1));
         }
+
+        drawJobs.push(pos);
         updateJobsList();
     };
 
@@ -308,19 +317,18 @@
         updateJobsList(jobIndex);
         // Animate Job
         animateJob(jobIndex, function() {
-            removeJob(jobIndex);
             currentJobIndex++;
+            removeJob(jobIndex);
             $('.consume-button').prop('disabled',false);
-            drawJobs[jobIndex].complete = true;
-            updateJobsList();
             if (cb) cb();
         });
     };
 
     var removeJob = function(jobIndex) {
-        // Remove marker on cavas
+        // Remove marker on canvas
         $('.marker-' + jobIndex).remove();
-        // updateJobsList(jobIndex);
+        drawJobs[jobIndex].complete = true;
+        updateJobsList();
     };
 
 
@@ -487,6 +495,41 @@
             .attr("cy", oy)
             .attr("class", 'beltpos-ring');
         }
+
+
+        var face = svg.append('g')
+		    .attr('id','clock-face')
+            .attr('transform','translate(' + ox + ',' + oy + ')');
+	    face.selectAll('.degree-tick')
+		.data(d3.range(0,360/5)).enter()
+			.append('line')
+			.attr('class', 'degree-tick')
+			.attr('x1',0)
+			.attr('x2',0)
+			.attr('y1',radius)
+			.attr('y2',radius-5)
+			.attr('transform',function(d){
+				return 'rotate(' + d * 5 + ')';
+			});
+        var radian = Math.PI / 180;
+        var interval = 15;
+        var labelradius = radius - 20;
+        face.selectAll('.degree-label')
+		    .data(d3.range(0,360/interval))
+			.enter()
+			.append('text')
+			.attr('class', 'degree-label')
+			.attr('text-anchor','middle')
+			.attr('x',function(d){
+				return labelradius * Math.sin(d*interval*radian);
+			})
+			.attr('y',function(d){
+				return -labelradius * Math.cos(d*interval*radian);
+			})
+            .attr('dy', ".35em")
+			.text(function(d){
+				return d*interval;
+			});
     };
 
     var buildBoom = function (svg) {

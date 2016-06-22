@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="850.394" height="283.465" viewBox="0, 0, 850.394, 283.465">
+  <g id="Layer_1">
+    <text transform="matrix(1, 0, 0, 1, 626.457, 133.228)">
+      <tspan x="-283.465" y="56.5" font-family="HiraMaruPro-W4" font-size="150" fill="#000000">Roplot</tspan>
+    </text>
+    <g>
+      <path d="M215.856,14.673 L284.807,49.149" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M284.807,49.149 L284.807,124.995" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M146.906,49.149 L215.856,83.624" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M215.856,83.624 L215.856,159.47" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M215.856,159.47 L215.856,235.316" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M215.856,159.47 L284.807,124.995" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M146.906,269.791 L215.856,235.316" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M146.906,49.149 L215.856,14.673" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M146.906,193.945 L215.856,159.47" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M77.955,14.673 L9.004,49.149" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M9.004,49.149 L9.004,124.995" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M146.906,49.149 L77.955,83.624" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M77.955,83.624 L77.955,159.47" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M77.955,159.47 L77.955,235.316" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M77.955,159.47 L9.004,124.995" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M146.906,269.791 L77.955,235.316" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M146.906,49.149 L77.955,14.673" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+      <path d="M146.906,193.945 L77.955,159.47" fill-opacity="0" stroke="#000000" stroke-width="14" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>
