@@ -55,7 +55,6 @@
                         color: 'green',
                         pole: 'north',
                         xoffset: scaleToVirtual(-50, physicalRadius),
-                        yoffset: 0
                     },
                     {
                         id: 2,
@@ -63,7 +62,6 @@
                         color: 'blue',
                         pole: 'north',
                         xoffset: scaleToVirtual(50, physicalRadius),
-                        yoffset: 0
                     },
                     {
                         id: 3,
@@ -71,7 +69,6 @@
                         color: 'yellow',
                         pole: 'south',
                         xoffset: scaleToVirtual(-50, physicalRadius),
-                        yoffset: 0
                     },
                     {
                         id: 4,
@@ -79,7 +76,6 @@
                         color: 'red',
                         pole: 'south',
                         xoffset: scaleToVirtual(50, physicalRadius),
-                        yoffset: 0
                     }
                 ]
             },
@@ -92,7 +88,6 @@
                         color: 'red',
                         pole: 'north',
                         xoffset: scaleToVirtual(-50, physicalRadius),
-                        yoffset: 0
                     },
                     {
                         id: 2,
@@ -100,7 +95,6 @@
                         color: 'blue',
                         pole: 'south',
                         xoffset: scaleToVirtual(50, physicalRadius),
-                        yoffset: 0
                     }]
             }
         ]
@@ -355,6 +349,15 @@
     };
 
     var execJob = function(jobIndex, cb) {
+        // Inform hardwar
+        var job = drawJobs[jobIndex];
+        sm.emit({
+            d: job.d,
+            r: job.r,
+            h: job.h,
+            p: (job.pen!==null) ? job.pen.id : "none"
+        });
+
         // Disable consume buttons
         $('.consume-button').prop('disabled',true);
         // Highlight job as in progress
@@ -638,7 +641,7 @@
                     .attr("r", 5)
                     .attr("cx", ox - pen.xoffset)
                     .attr("cy", function() {
-                        var offset = config.virtualDrawStart() + cp.beltpos + pen.yoffset;
+                        var offset = config.virtualDrawStart() + cp.beltpos;
                         if (pole===north) return oy - offset; else return oy + offset;
                     })
                     .style("fill", pen.color);
@@ -690,6 +693,12 @@
     svg = d3.select("#vis").append("svg")
             .attr("width", diameter)
             .attr("height", diameter);
+
+    // Web socket setup
+    sm = new SocketManager(function (newdata) {
+        log("Message:", newdata);
+    });
+    sm.connect();
 
     buildSurface(svg);
     buildBoom(svg);
