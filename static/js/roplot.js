@@ -136,7 +136,7 @@
         else                           { radians = Math.PI*1.5 + Math.asin(off_y / off_c);  }
         if (isNaN(radians)) radians = 0;
         var degrees = 180/Math.PI * radians;
-        return { d: degrees, r: radians, h: off_c / radius, original_x: x, original_y: y };
+        return { d: degrees, r: radians, h: off_c / radius, new_x: off_x, new_y: off_y, original_x: x, original_y: y };
     };
 
     var maxTravel = function() {
@@ -245,33 +245,77 @@
     // ----------------------------------------------------
 
     // Add point to drawing tasks
-    var addJob = function(pos) {
-        pos.pen = getPen();
-        if (pos.pen!==null) {
+    var addJob = function(x, y) {
+
+        // Without offset this is where the boom goes
+        var mark = pointTransform(x, y);
+        // Load selected pen
+        var pen = getPen();
+        var xoffset = 0;
+        var yoffset = 0;
+
+        if (pen!==null) {
+            var q = Math.floor(mark.d / 90 % 90);
+            var t = mark.r - ((Math.PI / 2) * q);
+            t = Math.PI/2 - t;
+            if (q === 0) {
+                xoffset = Math.sin(t) * pen.xoffset;
+                yoffset = Math.cos(t) * pen.xoffset;
+            } else if (q === 2) {
+                xoffset = - Math.sin(t) * pen.xoffset;
+                yoffset = - Math.cos(t) * pen.xoffset;
+            } else if (q === 1) {
+                xoffset = - Math.cos(t) * pen.xoffset;
+                yoffset = Math.sin(t) * pen.xoffset;
+            } else if (q === 3) {
+                xoffset = Math.cos(t) * pen.xoffset;
+                yoffset = - Math.sin(t) * pen.xoffset;
+            }
+            if (pen.pole==="south") {
+                xoffset = -1 * xoffset;
+                yoffset = -1 * yoffset;
+            }
+            // svg.append('circle')
+            //     .attr('r', 4)
+            //     .attr('cx', x+xoffset)
+            //     .attr('cy', y+yoffset)
+            //     .attr('fill', 'yellow');
+        }
+
+        //
+        var job  = pointTransform(x+xoffset, y+yoffset);
+
+        // Add pen to job info
+        job.pen = pen;
+
+        // Add job to list
+        drawJobs.push(job);
+
+        // Draw marker on surface
+        if (pen!==null) {
             svg.append('circle')
                 .attr('r', 4)
-                .attr('cx', pos.original_x)
-                .attr('cy', pos.original_y)
-                .attr('fill', pos.pen.color)
+                .attr('cx', mark.original_x)
+                .attr('cy', mark.original_y)
+                .attr('fill', pen.color)
                 .attr('class', 'marker-' + (drawJobs.length - 1));
         } else {
             svg.append('rect')
-              .attr('x', pos.original_x-5)
-              .attr('y', pos.original_y-1)
+              .attr('x', mark.original_x-5)
+              .attr('y', mark.original_y-1)
               .attr('width', 10)
               .attr('height', 2)
               .attr('fill', 'grey')
               .attr('class', 'marker-' + (drawJobs.length - 1));
             svg.append('rect')
-              .attr('x', pos.original_x-1)
-              .attr('y', pos.original_y-5)
+              .attr('x', mark.original_x-1)
+              .attr('y', mark.original_y-5)
               .attr('width', 2)
               .attr('height', 10)
               .attr('fill', 'grey')
               .attr('class', 'marker-' + (drawJobs.length - 1));
         }
 
-        drawJobs.push(pos);
         updateJobsList();
     };
 
@@ -626,8 +670,7 @@
             })
             .on("click", function () {
                 var point = d3.mouse(this);
-                var angle = pointTransform(point[0], point[1]);
-                addJob(angle);
+                addJob(point[0],point[1]);
                 d3.event.stopPropagation();
             });
     };
@@ -655,7 +698,6 @@
     updatePensList();
     updateJobsList();
     buildStats(svg);
-
 
     d3.select(".consumeOne").on("click", function() {  execNextJob();  });
     d3.select(".consumeAll").on("click", function() {  execAllJobs();  });

@@ -119,7 +119,7 @@ body {
 
 }
 
-#job_list .complete {
+#job_list .complete .row div {
     text-decoration: line-through;
 }
 
