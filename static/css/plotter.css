@@ -70,7 +70,7 @@ body {
     position: absolute;
     left: 305px;
     top: 10px;
-    right: 305px;
+    right: 355px;
     bottom: 10px;
 }
 
@@ -79,7 +79,7 @@ body {
     right: 0;
     top: 0;
     height: 100%;
-    width: 300px;
+    width: 350px;
     padding: 10px;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -148,4 +148,8 @@ body {
 
 .degree-label {
     fill: #eee;
+}
+
+.remove-job {
+    cursor: pointer;
 }

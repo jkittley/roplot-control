@@ -154,11 +154,13 @@
             var li = $('<li></li>');
                 li.addClass("list-group-item");
                 var html  = '<div class="row">';
-                    html += '<div class="col-md-4"><i class="fa fa-compass" aria-hidden="true"></i> '+Math.round(v.d)+'&deg; ';
+                    html += '<div class="col-md-3"><i class="fa fa-compass" aria-hidden="true"></i> '+Math.round(v.d)+'&deg; ';
                     html += '</div>';
-                    html += '<div class="col-md-4"><i class="fa fa-arrows-h" aria-hidden="true"></i> '+Math.round(v.h*radius)+';'
+                    html += '<div class="col-md-3"><i class="fa fa-arrows-h" aria-hidden="true"></i> '+Math.round(v.h*radius)+';'
                     html += '</div>';
                     html += '<div class="col-md-4"><i class="fa fa-pencil" aria-hidden="true"></i> '+((v.pen !==null) ? v.pen.name : 'None');
+                    html += '</div>';
+                    html += '<div class="col-md-2"><a href="javascript:removeJob('+k+');" class="remove-job"><i class="fa fa-close" ></i></a>';
                     html += '</div>';
                     html += '</div>';
                 li.html(html);
@@ -313,18 +315,32 @@
         updateJobsList();
     };
 
-    var execNextJob = function() {
+    var isJobComplete = function(jobIndex) {
+        var job = drawJobs[jobIndex];
+        return job.hasOwnProperty('complete');
+    };
+
+    var getNextJob = function () {
         if (currentJobIndex===null && drawJobs.length===0) {
             log("No first job");
             return null;
         } else if (currentJobIndex===null && drawJobs.length>0) {
-            currentJobIndex = 0;
+            return 0;
         } else if (currentJobIndex === drawJobs.length) {
             log("No next job");
             return null;
         }
+        while(isJobComplete(currentJobIndex)) {
+            log("Job complete - skipping");
+            currentJobIndex++;
+            if (currentJobIndex === drawJobs.length) return null;
+        }
+        return currentJobIndex;
+    };
 
-        execJob(currentJobIndex);
+    var execNextJob = function() {
+        var nextJob = getNextJob();
+        if (nextJob!==null) execJob(nextJob);
     };
 
     var execAllJobs = function() {
@@ -335,13 +351,12 @@
                 $('.consume-button').prop('disabled',false);
                 return;
         }
-        if (currentJobIndex===null && drawJobs.length > 0) {
-            currentJobIndex = 0;
-        }
-        if (currentJobIndex < drawJobs.length) {
+
+        var nextJob = getNextJob();
+        if (nextJob!==null) {
             $('.consumeStop').prop('disabled', false);
             setTimeout(function() {
-                execJob(currentJobIndex, execAllJobs)
+                execJob(nextJob, execAllJobs)
             },1000);
         } else {
             $('.consumeStop').prop('disabled', true);
@@ -717,5 +732,5 @@
 
     // Public API
     window.rotateBoom = rotateBoom;
-
+    window.removeJob = removeJob;
 })(window, jQuery);
