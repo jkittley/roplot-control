@@ -351,7 +351,6 @@
 
 
     var rotateBoom = function(abs_angle, cb) {
-
         var CW  = 1;
         var CCW = -1;
         var dir = (abs_angle > boomAngle) ? CW : CCW;
@@ -363,10 +362,18 @@
             diff_cw = 360 - Math.abs(abs_angle - boomAngle);
             diff_ccw  = Math.abs(abs_angle - boomAngle);
         }
+        var to_angle = abs_angle;
+        if (diff_ccw > diff_cw) {
+            // We should go clockwise
+            log("We should go clockwise");
+            to_angle = boomAngle + diff_cw % 360;
+        } else {
+            // We should go counterclockwise
+            log("We should go anticlockwise");
+            to_angle = boomAngle - diff_ccw;
+        }
 
         console.log("CCW",diff_ccw, "CW", diff_cw);
-
-        var to_angle = abs_angle;
 
 
         log("Rotating from: ",boomAngle, " to: ", abs_angle, " moving: ", to_angle);
