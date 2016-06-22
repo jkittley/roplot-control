@@ -351,16 +351,22 @@
 
 
     var rotateBoom = function(abs_angle, cb, force_dir) {
-        var CW  = 1;
-        var CCW = -1;
-        var dir = (abs_angle > boomAngle) ? CW : CCW;
-        var is_forced = false;
-        if (typeof force_dir !==undefined) {
-            log("Forcing direction");
-            is_forced = true;
+        // Make sure its a number
+        abs_angle = abs_angle * 1;
+        // Is the boom already at the angle
+        if (abs_angle===boomAngle) {
+            log("Already at angle ", abs_angle);
+            if (cb) cb();
+            return;
         }
 
+        var CW  = 1;
+        var CCW = -1;
+        var is_forced = false;
+        if (typeof force_dir !==undefined) { is_forced = true; }
+
         // Calc different distances
+        var dir = (abs_angle > boomAngle) ? CW : CCW;
         var diff_cw=0, diff_ccw=0;
         if (dir===CW) {
             diff_cw  = Math.abs(abs_angle - boomAngle);
@@ -381,22 +387,21 @@
             auto_dir = -1;
         }
 
-        var move_cw = boomAngle + diff_cw % 360;
+        var move_cw  = boomAngle + diff_cw % 360;
         var move_ccw = boomAngle - diff_ccw;
 
         var to_angle = abs_angle;
         if (is_forced && force_dir===CW) {
+            log("Forcing direction CW");
             to_angle = move_cw
         } else if (is_forced && force_dir===CCW) {
+            log("Forcing direction CCW");
             to_angle = move_ccw
         } else if (auto_dir===CW) {
             to_angle = move_cw
         } else {
             to_angle = move_ccw
         }
-
-
-
 
         log("Rotating from: ",boomAngle, " to: ", abs_angle, " moving: ", to_angle);
         // Swing it baby
@@ -411,7 +416,8 @@
           .each("end", function () {
               if (cb) cb();
               boomAngle = abs_angle;
-          });
+              $('.stat-angle').text('Angle: '+boomAngle);
+        });
     };
 
 
@@ -583,6 +589,14 @@
             });
     };
 
+    var buildStats = function(svg) {
+        svg.append('text')
+         .attr("x", 10)
+         .attr("y", 20)
+         .text("Hello")
+         .attr("class", "stat stat-angle");
+    };
+
     // ----------------------------------------------------
     // Main
     // ----------------------------------------------------
@@ -597,6 +611,7 @@
     buildClickLayer(svg);
     updatePensList();
     updateJobsList();
+    buildStats(svg);
 
 
     d3.select(".consumeOne").on("click", function() {  execNextJob();  });

@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e159a2f-3c1d-4dab-8aee-d9b04a48e970" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/css/plotter.css" afterPath="$PROJECT_DIR$/static/css/plotter.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/roplot.js" afterPath="$PROJECT_DIR$/static/js/roplot.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/plotter.html" afterPath="$PROJECT_DIR$/templates/plotter.html" />
     </list>
     <ignored path="roplot.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -41,11 +42,21 @@
       <file leaf-file-name="roplot.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/static/js/roplot.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="472">
-              <caret line="499" column="41" selection-start-line="499" selection-start-column="41" selection-end-line="499" selection-end-column="41" />
+            <state relative-caret-position="361">
+              <caret line="418" column="57" selection-start-line="418" selection-start-column="57" selection-end-line="418" selection-end-column="57" />
               <folding>
                 <element signature="e#0#42#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="plotter.css" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/static/css/plotter.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="649">
+              <caret line="129" column="5" selection-start-line="129" selection-start-column="1" selection-end-line="129" selection-end-column="5" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -72,8 +83,8 @@
         <option value="$PROJECT_DIR$/static/settings.json" />
         <option value="$PROJECT_DIR$/roplot.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/static/css/plotter.css" />
         <option value="$PROJECT_DIR$/templates/plotter.html" />
+        <option value="$PROJECT_DIR$/static/css/plotter.css" />
         <option value="$PROJECT_DIR$/static/js/roplot.js" />
       </list>
     </option>
@@ -146,6 +157,24 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="static" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="roplot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="roplot" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="static" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="css" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -529,14 +558,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/static/css/plotter.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="109" column="0" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="228">
@@ -553,10 +574,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/static/css/plotter.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="649">
+          <caret line="129" column="5" selection-start-line="129" selection-start-column="1" selection-end-line="129" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/static/js/roplot.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="472">
-          <caret line="499" column="41" selection-start-line="499" selection-start-column="41" selection-end-line="499" selection-end-column="41" />
+        <state relative-caret-position="361">
+          <caret line="418" column="57" selection-start-line="418" selection-start-column="57" selection-end-line="418" selection-end-column="57" />
           <folding>
             <element signature="e#0#42#0" expanded="false" />
           </folding>
