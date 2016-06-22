@@ -13,6 +13,9 @@
 </head>
 <body>
 <div id="left_menu">
+
+    <img class="logo" src="{{  url_for('static', filename='img/logo.svg') }}" height="50"/>
+
     <div id="pen_list" class="panel panel-primary">
         <div class="panel-heading">Pens</div>
         <ul class="list-group"></ul>
@@ -46,11 +49,11 @@
   </div>
     <div id="job_list" class="panel panel-primary">
       <div class="panel-heading">Jobs</div>
-      <div class="panel-body" style="padding: 5px;">
+      <div class="panel-body" style="padding-top:2px; padding-bottom:2px; ">
           <div class="row">
-              <div class="col-md-4"><button type="button" class="btn btn-xs btn-block btn-success consume-button consumeOne">Consume</button></div>
-              <div class="col-md-4"><button type="button" class="btn btn-xs btn-block btn-warning consume-button consumeAll">All</button></div>
-              <div class="col-md-4"><button type="button" class="btn btn-xs btn-block btn-danger consumeStop" disabled>Stop</butto></div>
+              <div class="col-md-4" style="padding:2px;"><button type="button" class="btn btn-sm btn-block btn-success consume-button consumeOne">Exec Next</button></div>
+              <div class="col-md-4" style="padding:2px;"><button type="button" class="btn btn-sm btn-block btn-warning consume-button consumeAll">Exec All</button></div>
+              <div class="col-md-4" style="padding:2px;"><button type="button" class="btn btn-sm btn-block btn-danger consumeStop" disabled>Stop</butto></div>
           </div>
       </div>
         <ul class="list-group"></ul>

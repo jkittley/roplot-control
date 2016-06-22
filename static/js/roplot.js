@@ -593,7 +593,7 @@
         svg.append('text')
          .attr("x", 10)
          .attr("y", 20)
-         .text("Hello")
+         .text("")
          .attr("class", "stat stat-angle");
     };
 

@@ -5,6 +5,10 @@ body {
     overflow: hidden;
 }
 
+.logo {
+    margin-bottom: 10px;
+}
+
 #log {
     position: relative;
     height: 200px;
