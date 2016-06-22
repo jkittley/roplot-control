@@ -350,10 +350,17 @@
     };
 
 
-    var rotateBoom = function(abs_angle, cb) {
+    var rotateBoom = function(abs_angle, cb, force_dir) {
         var CW  = 1;
         var CCW = -1;
         var dir = (abs_angle > boomAngle) ? CW : CCW;
+        var is_forced = false;
+        if (typeof force_dir !==undefined) {
+            log("Forcing direction");
+            is_forced = true;
+        }
+
+        // Calc different distances
         var diff_cw=0, diff_ccw=0;
         if (dir===CW) {
             diff_cw  = Math.abs(abs_angle - boomAngle);
@@ -362,18 +369,33 @@
             diff_cw = 360 - Math.abs(abs_angle - boomAngle);
             diff_ccw  = Math.abs(abs_angle - boomAngle);
         }
-        var to_angle = abs_angle;
+        log("CCW",diff_ccw, "CW", diff_cw);
+
+        // Workout shortest direction of travel
+        var auto_dir = 0;
         if (diff_ccw > diff_cw) {
-            // We should go clockwise
-            log("We should go clockwise");
-            to_angle = boomAngle + diff_cw % 360;
+            log("Shortest route is clockwise");
+            auto_dir = 1;
         } else {
-            // We should go counterclockwise
-            log("We should go anticlockwise");
-            to_angle = boomAngle - diff_ccw;
+            log("Shortest route is anticlockwise");
+            auto_dir = -1;
         }
 
-        console.log("CCW",diff_ccw, "CW", diff_cw);
+        var move_cw = boomAngle + diff_cw % 360;
+        var move_ccw = boomAngle - diff_ccw;
+
+        var to_angle = abs_angle;
+        if (is_forced && force_dir===CW) {
+            to_angle = move_cw
+        } else if (is_forced && force_dir===CCW) {
+            to_angle = move_ccw
+        } else if (auto_dir===CW) {
+            to_angle = move_cw
+        } else {
+            to_angle = move_ccw
+        }
+
+
 
 
         log("Rotating from: ",boomAngle, " to: ", abs_angle, " moving: ", to_angle);
@@ -472,6 +494,16 @@
             .attr("y2", oy + radius)
             .attr("stroke-width", 2)
             .style("stroke", 'black');
+
+        poly = [ox+", "+(oy-radius),
+                (ox-5)+", "+(oy-radius+10),
+                (ox+5)+", "+(oy-radius+10)
+        ];
+
+        boom.append("polygon")
+            .attr("points", function() { return poly.join(" ") })
+            .attr("stroke","black")
+            .attr("stroke-width",2);
     };
 
     var buildCarriages = function (svg) {

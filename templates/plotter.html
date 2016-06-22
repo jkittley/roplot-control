@@ -25,7 +25,9 @@
                 <label for="man_angle">Rotate to: </label>
                 <input type="number" min=0 max=359 class="form-control" id="man_angle" placeholder="Angle 0-360">
               </div>
-              <button type="button" onclick="rotateBoom($('#man_angle').val())" class="btn btn-default">Go</button>
+              <button type="button" onclick="rotateBoom($('#man_angle').val());" class="btn btn-default">Auto</button>
+              <button type="button" onclick="rotateBoom($('#man_angle').val(),null,1);" class="btn btn-default">CW</button>
+              <button type="button" onclick="rotateBoom($('#man_angle').val(),null,-1);" class="btn btn-default">CCW</button>
             </form>
         </div>
     </div>
