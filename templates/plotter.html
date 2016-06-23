@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RoPlot</title>
+    <title>RoPlot - Controller</title>
     <script src="{{ url_for('static', filename='js/d3.min.js') }}" charset="utf-8"></script>
     <script src="{{ url_for('static', filename='js/jquery-2.2.4.min.js') }}"></script>
 
@@ -20,7 +20,7 @@
 <div id="left_menu">
 
     <div id="logo">
-    <img src="{{  url_for('static', filename='img/logo.svg') }}" height="50"/>
+      <a href="/"><img src="{{  url_for('static', filename='img/logo.svg') }}" height="50"/></a>
     </div>
 
     <div id="pen_list" class="panel panel-primary">

@@ -1,0 +1,17 @@
+body {
+    padding: 10px;
+    background-color: #f7f7f7;
+    overflow: hidden;
+}
+
+#logo img {
+    width: 100%;
+    text-align: center;
+    height: 80px;
+}
+
+#logo {
+    margin-bottom: 30px;
+    margin-top: 50px;
+}
+
