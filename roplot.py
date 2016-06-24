@@ -1,3 +1,5 @@
+import json
+
 from settings import Settings, SettingsForm, SettingsCarriageForm, SettingsPenForm
 import sys
 import signal
@@ -22,7 +24,28 @@ def index():
 
 @app.route('/control')
 def control():
-    return render_template('plotter.html')
+    settings = Settings()
+    machine_config = {}
+
+    # Basic settings
+    general = settings.getAll()
+    for g in general:
+        machine_config[g['type']] = g['value']
+
+    # Carriages & Pens
+    machine_config['carriagePairs'] = []
+    carriages = settings.getCarriages()
+    for c in carriages:
+        carr = c
+        carr['pens'] = []
+        carr_pens = settings.getPens(carriage_id=c['id'])
+        print carr_pens
+        for cp in carr_pens:
+            carr['pens'].append(cp)
+        machine_config['carriagePairs'].append(c)
+
+    machine_config = json.dumps(machine_config)
+    return render_template('plotter.html', machine_config=machine_config)
 
 @app.route('/settings', methods=['GET', 'POST'])
 def editSettings():
@@ -39,15 +62,20 @@ def editSettings():
                 settings.set(f.name, f.data)
 
     if 'carriages' in request.form:
-        print "Carriage form"
         if carriageForm.validate_on_submit():
             settings.addUpdateCarriage(carriageForm.carriage_id.data, carriageForm.beltpos.data)
 
     if 'pen' in request.form:
-        print "penForm form"
         if penForm.validate_on_submit():
             settings.addUpdatePen(penForm.pen_id.data, penForm.carriage_id.data, penForm.name.data, penForm.color.data, penForm.pole.data, penForm.xoffset.data)
 
+    if 'remove' in request.form:
+        if 'carriage_id' in request.form:
+            print 'remove carriage id', request.form['carriage_id']
+            settings.removeCarriage(request.form['carriage_id'])
+        elif 'pen_id' in request.form:
+            print 'remove pen id', request.form['pen_id']
+            settings.removePen(request.form['pen_id'])
 
     carriages = settings.getCarriages()
     pens = settings.getPens()

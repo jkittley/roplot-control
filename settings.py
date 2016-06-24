@@ -11,7 +11,6 @@ class Settings:
     db = TinyDB(Path(os.path.realpath(__file__)).parent.child('settings.json'))
 
     def __init__(self):
-        print "Initialising Settings"
         self.defaults = [
             ("rotationSpeed", 10, 'int'),
             ("beltSpeed", 10, 'int'),
@@ -92,9 +91,17 @@ class Settings:
             table.remove(q.id==id)
         return self.addCarriage(id, beltpos)
 
+
     def getCarriages(self):
         table = self.getCarriagesTable()
         return table.all()
+
+
+    def removeCarriage(self, carriage_id):
+        table = self.getCarriagesTable()
+        q = Query()
+        table.remove(q.id==int(carriage_id))
+
 
     # Pens
 
@@ -133,12 +140,19 @@ class Settings:
         return self.addPen(penId, carriageid, name, color, pole, xoffset)
 
 
-    def getPens(self):
+    def getPens(self, **kwargs):
         table = self.getPensTable()
-        return table.all()
+        carriage_id = kwargs.get('carriage_id', None)
+        if carriage_id is None:
+            return table.all()
+        else:
+            q = Query()
+            return table.search(q.carriageId==str(carriage_id))
 
-
-
+    def removePen(self, pen_id):
+        table = self.getPensTable()
+        q = Query()
+        table.remove(q.id == int(pen_id))
 
 
 class SettingsForm(Form):
@@ -161,7 +175,7 @@ class SettingsPenForm(Form):
     pole_choices  = [('north', 'North'), ('south', 'South')]
     color_choices = [('red', 'Red'), ('green', 'Green'), ('blue', 'Blue'), ('black', 'Black'), ('orange', 'Orange')]
     carriage_choices = [ (str(x['id']), str(x['id'])) for x in s.getCarriages()]
-    print carriage_choices
+
     pen     = HiddenField('pen')
     pen_id  = IntegerField('ID', validators=[DataRequired(), NumberRange(0, 1000)])
     carriage_id = SelectField('Carriage', choices=carriage_choices)

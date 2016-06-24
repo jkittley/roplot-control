@@ -11,7 +11,6 @@
     var padding = 10;
     var diameter = Math.min(vis.width()-padding*2, vis.height()-padding*2);
     var radius = diameter / 2;
-    var physicalRadius = 1200;
     var ox = radius,
         oy = radius;
     var drawJobs = [];
@@ -26,81 +25,87 @@
     var north = null;
     var south = null;
 
-    var scaleToVirtual = function (value, physicalRadius) {
-        var a = Math.max(physicalRadius, radius);
-        var b = Math.min(physicalRadius, radius);
-        return b / a * value;
-    };
-
     // ----------------------------------------------------
     // Config
     // ----------------------------------------------------
 
-    var config = {
-        rotationSpeed: 10, // Time to turn 1 degree
-        beltSpeed: 10, // Time to move carriage 1cm - TODO check this
-        physicalRadius: physicalRadius, // Device radius in mm
+    var scaleToVirtual = function (value, physicalRadius) {
+            var a = Math.max(physicalRadius, radius);
+            var b = Math.min(physicalRadius, radius);
+            return b / a * value;
+        };
 
-        physicalDrawStart: 200, // Closest to centre we can draw in mm
-        physicalDrawEnd: 1000, // Furthest from the center
-        virtualDrawStart: function() { return scaleToVirtual(config.physicalDrawStart, config.physicalRadius) },
-        virtualDrawEnd: function() { return scaleToVirtual(config.physicalDrawEnd, physicalRadius) },
+    config.virtualDrawStart = function() { return scaleToVirtual(config.physicalDrawStart, config.physicalRadius) };
+    config.virtualDrawEnd = function() { return scaleToVirtual(config.physicalDrawEnd, config.physicalRadius) };
+    for (x in config.carriagePairs) {
+        config.carriagePairs[x].beltpos = scaleToVirtual(config.carriagePairs[x].beltpos, config.physicalRadius);
+    }
 
-        carriagePairs: [
-            {
-                id: 1,
-                beltpos: scaleToVirtual(0, physicalRadius), // Relative to physicalDrawStart
-                pens: [
-                    {
-                        id: 1,
-                        name: 'Inner green',
-                        color: 'green',
-                        pole: 'north',
-                        xoffset: scaleToVirtual(-50, physicalRadius),
-                    },
-                    {
-                        id: 2,
-                        name: 'Inner blue',
-                        color: 'blue',
-                        pole: 'north',
-                        xoffset: scaleToVirtual(50, physicalRadius),
-                    },
-                    {
-                        id: 3,
-                        name: 'Inner yellow',
-                        color: 'yellow',
-                        pole: 'south',
-                        xoffset: scaleToVirtual(-50, physicalRadius),
-                    },
-                    {
-                        id: 4,
-                        name: 'Inner red',
-                        color: 'red',
-                        pole: 'south',
-                        xoffset: scaleToVirtual(50, physicalRadius),
-                    }
-                ]
-            },
-            // {
-            //     id: 2,
-            //     beltpos: scaleToVirtual(400, physicalRadius), // Relative to physicalDrawStart so = physicalDrawEnd - physicalDrawStart / 2
-            //     pens: [{
-            //             id: 1,
-            //             name: 'Outer red',
-            //             color: 'red',
-            //             pole: 'north',
-            //             xoffset: scaleToVirtual(-50, physicalRadius),
-            //         },
-            //         {
-            //             id: 2,
-            //             name: 'Outer red',
-            //             color: 'blue',
-            //             pole: 'south',
-            //             xoffset: scaleToVirtual(50, physicalRadius),
-            //         }]
-            // }
-        ]
-    };
+    // var config = {
+    //     rotationSpeed: 10, // Time to turn 1 degree
+    //     beltSpeed: 10, // Time to move carriage 1cm - TODO check this
+    //     physicalRadius: physicalRadius, // Device radius in mm
+    //
+    //     physicalDrawStart: 200, // Closest to centre we can draw in mm
+    //     physicalDrawEnd: 1000, // Furthest from the center
+    //     virtualDrawStart: function() { return scaleToVirtual(config.physicalDrawStart, config.physicalRadius) },
+    //     virtualDrawEnd: function() { return scaleToVirtual(config.physicalDrawEnd, physicalRadius) },
+    //
+    //     carriagePairs: [
+    //         {
+    //             id: 1,
+    //             beltpos: scaleToVirtual(0, physicalRadius), // Relative to physicalDrawStart
+    //             pens: [
+    //                 {
+    //                     id: 1,
+    //                     name: 'Inner green',
+    //                     color: 'green',
+    //                     pole: 'north',
+    //                     xoffset: scaleToVirtual(-50, physicalRadius),
+    //                 },
+    //                 {
+    //                     id: 2,
+    //                     name: 'Inner blue',
+    //                     color: 'blue',
+    //                     pole: 'north',
+    //                     xoffset: scaleToVirtual(50, physicalRadius),
+    //                 },
+    //                 {
+    //                     id: 3,
+    //                     name: 'Inner yellow',
+    //                     color: 'yellow',
+    //                     pole: 'south',
+    //                     xoffset: scaleToVirtual(-50, physicalRadius),
+    //                 },
+    //                 {
+    //                     id: 4,
+    //                     name: 'Inner red',
+    //                     color: 'red',
+    //                     pole: 'south',
+    //                     xoffset: scaleToVirtual(50, physicalRadius),
+    //                 }
+    //             ]
+    //         },
+    //         // {
+    //         //     id: 2,
+    //         //     beltpos: scaleToVirtual(400, physicalRadius), // Relative to physicalDrawStart so = physicalDrawEnd - physicalDrawStart / 2
+    //         //     pens: [{
+    //         //             id: 1,
+    //         //             name: 'Outer red',
+    //         //             color: 'red',
+    //         //             pole: 'north',
+    //         //             xoffset: scaleToVirtual(-50, physicalRadius),
+    //         //         },
+    //         //         {
+    //         //             id: 2,
+    //         //             name: 'Outer red',
+    //         //             color: 'blue',
+    //         //             pole: 'south',
+    //         //             xoffset: scaleToVirtual(50, physicalRadius),
+    //         //         }]
+    //         // }
+    //     ]
+    // };
 
     // ----------------------------------------------------
     // Helpers

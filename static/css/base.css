@@ -19,3 +19,7 @@ body {
     border-width: 1px;
     border-color: #ccc;
 }
+
+th {
+    background-color: #c8faff;
+}

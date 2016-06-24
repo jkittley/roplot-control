@@ -32,6 +32,7 @@
                     if (param!==undefined) $('#'+param).val(value);
                 })
             });
+
         });
     </script>
 {% endblock %}
@@ -64,11 +65,15 @@
           <div class="panel-heading">Carriages</div>
           <div class="panel-body">
               {% for c in carriages %}
-              <div class="row">
+              <form method="POST" action="/settings">
+                <input type="hidden" name="carriage_id" value="{{ c.id }}">
+                <div class="row">
                  <div class="col-md-4">{{ c.id }}</div>
                  <div class="col-md-4">{{ c.beltpos }}</div>
-                 <div class="col-md-4"><a href="javascript:;" data-beltpos="{{ c.beltpos }}" data-id="{{ c.id }}" class="carriage-edit-button">Edit</a></div>
-              </div>
+                 <div class="col-md-2"><a href="javascript:;" data-beltpos="{{ c.beltpos }}" data-id="{{ c.id }}" class="carriage-edit-button btn btn-sm btn-primary" ">Edit</a></div>
+                 <div class="col-md-2"><button type="submit" class="btn btn-sm btn-danger" name="remove">Remove</button></div>
+                </div>
+              </form>
               {% endfor %}
           </div>
           <div class="panel-footer">
@@ -87,28 +92,34 @@
 
         <div class="panel panel-info">
               <div class="panel-heading">Carriages</div>
-              <div class="panel-body">
-                  <div class="row">
-                     <div class="col-md-1">ID</div>
-                     <div class="col-md-1">Carriage</div>
-                     <div class="col-md-2">Name</div>
-                     <div class="col-md-2">Colour</div>
-                     <div class="col-md-2">Pole</div>
-                     <div class="col-md-2">XOffset</div>
-                     <div class="col-md-2">Options</div>
-                  </div>
+
+                <form method="POST" action="/settings">
+                  <table class="table table-striped">
+                    <tr>
+                     <th>ID</th>
+                     <th>Carriage</th>
+                     <th>Name</td>
+                     <th>Colour</th>
+                     <th>Pole</th>
+                     <th>XOffset</th>
+                     <th colspan="2">Options</th>
+                    </tr>
+
                   {% for p in pens %}
-                  <div class="row">
-                     <div class="col-md-1" data-param="pen_id">{{ p.id }}</div>
-                     <div class="col-md-1" data-param="carriage_id">{{ p.carriageId }}</div>
-                     <div class="col-md-2" data-param="name">{{ p.name }}</div>
-                     <div class="col-md-2" data-param="color">{{ p.color }}</div>
-                     <div class="col-md-2" data-param="pole">{{ p.pole }}</div>
-                     <div class="col-md-2" data-param="xoffset"> {{ p.xoffset }}</div>
-                     <div class="col-md-2"><a href="javascript:;" class="pen-edit-button">Edit</a></div>
-                  </div>
+
+                    <tr>
+                     <td data-param="pen_id"><input type="hidden" name="pen_id" value="{{ p.id }}">{{ p.id }}</td>
+                     <td data-param="carriage_id">{{ p.carriageId }}</td>
+                     <td data-param="name">{{ p.name }}</td>
+                     <td data-param="color">{{ p.color }}</td>
+                     <td data-param="pole">{{ p.pole }}</td>
+                     <td data-param="xoffset"> {{ p.xoffset }}</td>
+                     <td><a href="javascript:;" class="pen-edit-button btn btn-sm btn-primary">Edit</a></td>
+                     <td><button type="submit" class="btn btn-sm btn-danger" name="remove">Remove</button></td>
+                    </tr>
                   {% endfor %}
-              </div>
+               </table>
+              </form>
               <div class="panel-footer">
                 <form id="pen_form" method="POST" action="/settings" class="form-horizontal">
                   {{ penForm.hidden_tag() }}
