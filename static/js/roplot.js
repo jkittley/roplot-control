@@ -38,8 +38,12 @@
     config.virtualDrawStart = function() { return scaleToVirtual(config.physicalDrawStart, config.physicalRadius) };
     config.virtualDrawEnd = function() { return scaleToVirtual(config.physicalDrawEnd, config.physicalRadius) };
     for (x in config.carriagePairs) {
-        config.carriagePairs[x].beltpos = scaleToVirtual(config.carriagePairs[x].beltpos, config.physicalRadius);
+        config.carriagePairs[x].virtualBeltpos = scaleToVirtual(config.carriagePairs[x].beltpos, config.physicalRadius);
+        for (p in config.carriagePairs[x].pens) {
+            config.carriagePairs[x].pens[p].virtualXOffset = scaleToVirtual(config.carriagePairs[x].pens[p].xoffset, config.physicalRadius);
+        }
     }
+
 
     // var config = {
     //     rotationSpeed: 10, // Time to turn 1 degree
@@ -143,7 +147,7 @@
     var maxTravel = function() {
         var max_belt_pos = 0;
         for (i in config.carriagePairs) {
-            var x = config.carriagePairs[i].beltpos;
+            var x = config.carriagePairs[i].virtualBeltpos;
             if (max_belt_pos < x) max_belt_pos = x;
         }
         return config.virtualDrawEnd() - max_belt_pos;
@@ -207,7 +211,7 @@
                     tmp.attr('class', 'list-group-item pen-button');
                     tmp.attr('data-carriage-id', carriage.id);
                     tmp.attr('data-pen-id', pen.id);
-                    tmp.html(pen.color+' '+pen.pole);
+                    tmp.html(pen.name+' '+pen.color+' '+pen.pole);
 
                 if (carriage.id===selectedCarriage && pen.id===selectedPen) {
                     hasPenSelected = true;
@@ -271,17 +275,16 @@
             var t = mark.r - ((Math.PI / 2) * q);
             t = Math.PI/2 - t;
             if (q === 0) {
-                xoffset = Math.sin(t) * pen.xoffset;
-                yoffset = Math.cos(t) * pen.xoffset;
+                yoffset = Math.cos(t) * pen.virtualXOffset;
             } else if (q === 2) {
-                xoffset = - Math.sin(t) * pen.xoffset;
-                yoffset = - Math.cos(t) * pen.xoffset;
+                xoffset = - Math.sin(t) * pen.virtualXOffset;
+                yoffset = - Math.cos(t) * pen.virtualXOffset;
             } else if (q === 1) {
-                xoffset = - Math.cos(t) * pen.xoffset;
-                yoffset = Math.sin(t) * pen.xoffset;
+                xoffset = - Math.cos(t) * pen.virtualXOffset;
+                yoffset = Math.sin(t) * pen.virtualXOffset;
             } else if (q === 3) {
-                xoffset = Math.cos(t) * pen.xoffset;
-                yoffset = - Math.sin(t) * pen.xoffset;
+                xoffset = Math.cos(t) * pen.virtualXOffset;
+                yoffset = - Math.sin(t) * pen.virtualXOffset;
             }
             if (pen.pole==="south") {
                 xoffset = -1 * xoffset;
@@ -526,8 +529,8 @@
         if (h > config.virtualDrawEnd()) { log("Greater than draw space"); if(cb) cb(false); return; }
         if (h < config.virtualDrawStart()) { log("Less than draw space"); if(cb) cb(false); return; }
         // Check if in pen limits
-        var min_pos = config.virtualDrawStart() + carriage.beltpos;
-        var max_pos = maxTravel() + carriage.beltpos;
+        var min_pos = config.virtualDrawStart() + carriage.virtualBeltpos;
+        var max_pos = maxTravel() + carriage.virtualBeltpos;
         if (h > max_pos) { log("Greater than pen space"); if(cb) cb(false); return; }
         if (h < min_pos) { log("Less than pen space"); if(cb) cb(false); return; }
         // Position from center to move to
@@ -582,7 +585,7 @@
 
         for (i in config.carriagePairs) {
             svg.append("circle")
-            .attr("r", config.virtualDrawStart() + config.carriagePairs[i].beltpos)
+            .attr("r", config.virtualDrawStart() + config.carriagePairs[i].virtualBeltpos)
             .attr("cx", ox)
             .attr("cy", oy)
             .attr("class", 'beltpos-ring');
@@ -664,7 +667,7 @@
                 .attr("r", 5)
                 .attr("cx", ox)
                 .attr("cy", function () {
-                    return oy - config.virtualDrawStart() - cp.beltpos;
+                    return oy - config.virtualDrawStart() - cp.virtualBeltpos;
                 });
 
             south.append("circle")
@@ -672,7 +675,7 @@
                 .attr("r", 5)
                 .attr("cx", ox)
                 .attr("cy", function () {
-                    return oy + config.virtualDrawStart() + cp.beltpos;
+                    return oy + config.virtualDrawStart() + cp.virtualBeltpos;
                 });
 
             // Add pens
@@ -684,9 +687,9 @@
                 pen.circle = pole.append("circle")
                     .attr('class', 'pen')
                     .attr("r", 5)
-                    .attr("cx", ox - pen.xoffset)
+                    .attr("cx", ox - pen.virtualXOffset)
                     .attr("cy", function() {
-                        var offset = config.virtualDrawStart() + cp.beltpos;
+                        var offset = config.virtualDrawStart() + cp.virtualBeltpos;
                         if (pole===north) return oy - offset; else return oy + offset;
                     })
                     .style("fill", pen.color);

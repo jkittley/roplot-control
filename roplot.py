@@ -57,6 +57,7 @@ def editSettings():
     penForm = SettingsPenForm()
 
     if 'general' in request.form:
+        print "Saving general"
         if form.validate_on_submit():
             for f in form:
                 settings.set(f.name, f.data)

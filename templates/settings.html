@@ -40,7 +40,8 @@
 {% block main %}
 <div class="container">
 
-
+    <div class="row">
+        <div class="col-md-6">
     <!-- Basics -->
 
       <form method="POST" action="/settings" class="form-horizontal">
@@ -54,9 +55,11 @@
                 {{ render_field(form.physicalDrawStart) }}
                 {{ render_field(form.physicalDrawEnd) }}
           </div>
-            <div class="panel-footer"><input type="submit" value="Save" class="btn btn-block btn-primary"></div>
+            <div class="panel-footer" style="background-color: white"><input type="submit" value="Save" class="btn btn-block btn-primary"></div>
           </div>
       </form>
+
+    </div><div class="col-md-6">
 
 
     <!-- Carriages -->
@@ -81,20 +84,20 @@
               {{ carriageForm.hidden_tag() }}
               {{ render_field(carriageForm.carriage_id) }}
               {{ render_field(carriageForm.beltpos) }}
-                <hr>
-              <input type="submit" value="Save" class="btn btn-block btn-primary">
+              <input type="submit" value="Save" class="btn btn-block btn-primary" style="margin-top:10px;">
             </form>
           </div>
         </div>
 
+    </div></div>
 
     <!-- Pens -->
 
-        <div class="panel panel-info">
-              <div class="panel-heading">Carriages</div>
+        <div class="panel panel-success">
+              <div class="panel-heading">Pens</div>
 
                 <form method="POST" action="/settings">
-                  <table class="table table-striped">
+                  <table class="table table-striped"  style="margin:0;">
                     <tr>
                      <th>ID</th>
                      <th>Carriage</th>
@@ -129,8 +132,7 @@
                   {{ render_field(penForm.color) }}
                   {{ render_field(penForm.pole) }}
                   {{ render_field(penForm.xoffset) }}
-                    <hr>
-                  <input type="submit" value="Save" class="btn btn-block btn-primary">
+                  <input type="submit" value="Save" class="btn btn-block btn-success" style="margin-top:10px;">
                 </form>
               </div>
         </div>
