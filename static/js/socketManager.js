@@ -37,13 +37,14 @@ SocketManager.prototype.addNewDataCallback = function(cb) {
     this.addCallback(this.newDataCbs, cb);
 };
 
-SocketManager.prototype.connect = function() {
+SocketManager.prototype.connect = function(cb) {
+    if (cb) this.addConnectCallback(cb);
     this.socket = io.connect('http://' + document.domain + ':' + location.port);
     var self = this;
     this.socket.on('connect', function() {
         console.log('Connected');
         // On connect callbacks
-        for (var i in self.connectCbs) self.connectCbs[i]();
+        for (var i in self.connectCbs) self.connectCbs[i](true);
     });
     // On new data callbacks
     this.socket.on('update', function(data) {

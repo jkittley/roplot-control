@@ -19,6 +19,7 @@
     var emergencyStop = false;
     var selectedCarriage = null;
     var selectedPen = null;
+    var currentBeltpos = 0;
     var svg = null;
     var boom = null;
     var boomAngle = 0;
@@ -36,7 +37,8 @@
     // ----------------------------------------------------
 
     var config = {
-        speed: 10, // Time to turn 1 degree
+        rotationSpeed: 10, // Time to turn 1 degree
+        beltSpeed: 10, // Time to move carriage 1cm - TODO check this
         physicalRadius: physicalRadius, // Device radius in mm
 
         physicalDrawStart: 200, // Closest to centre we can draw in mm
@@ -79,24 +81,24 @@
                     }
                 ]
             },
-            {
-                id: 2,
-                beltpos: scaleToVirtual(400, physicalRadius), // Relative to physicalDrawStart so = physicalDrawEnd - physicalDrawStart / 2
-                pens: [{
-                        id: 1,
-                        name: 'Outer red',
-                        color: 'red',
-                        pole: 'north',
-                        xoffset: scaleToVirtual(-50, physicalRadius),
-                    },
-                    {
-                        id: 2,
-                        name: 'Outer red',
-                        color: 'blue',
-                        pole: 'south',
-                        xoffset: scaleToVirtual(50, physicalRadius),
-                    }]
-            }
+            // {
+            //     id: 2,
+            //     beltpos: scaleToVirtual(400, physicalRadius), // Relative to physicalDrawStart so = physicalDrawEnd - physicalDrawStart / 2
+            //     pens: [{
+            //             id: 1,
+            //             name: 'Outer red',
+            //             color: 'red',
+            //             pole: 'north',
+            //             xoffset: scaleToVirtual(-50, physicalRadius),
+            //         },
+            //         {
+            //             id: 2,
+            //             name: 'Outer red',
+            //             color: 'blue',
+            //             pole: 'south',
+            //             xoffset: scaleToVirtual(50, physicalRadius),
+            //         }]
+            // }
         ]
     };
 
@@ -462,7 +464,7 @@
             diff_cw = 360 - Math.abs(abs_angle - boomAngle);
             diff_ccw  = Math.abs(abs_angle - boomAngle);
         }
-        log("CCW",diff_ccw, "CW", diff_cw);
+        log("Route lengths: CCW",Math.round(diff_ccw), " - CW", Math.round(diff_cw));
 
         // Workout shortest direction of travel
         var auto_dir = 0;
@@ -490,12 +492,12 @@
             to_angle = move_ccw
         }
 
-        log("Rotating from: ",boomAngle, " to: ", abs_angle, " moving: ", to_angle);
+        log("Rotating from: ",Math.round(boomAngle), " to: ", Math.round(abs_angle), " moving: ", Math.round(to_angle));
         // Swing it baby
         boom.transition()
           .duration(function () {
             var distance = Math.max(boomAngle, to_angle) - Math.min(boomAngle, to_angle);
-            return config.speed * distance;
+            return config.rotationSpeed * distance;
           })
           .attrTween("transform", function() {
               return d3.interpolateString("rotate("+boomAngle+", "+ox+", "+ox+")", "rotate("+to_angle+", "+oy+", "+oy+")");
@@ -503,7 +505,7 @@
           .each("end", function () {
               if (cb) cb();
               boomAngle = abs_angle;
-              $('.stat-angle').text('Angle: '+boomAngle);
+              $('.stat-angle').html('Angle: '+Math.round(boomAngle)+"&deg;");
         });
     };
 
@@ -529,12 +531,18 @@
         // Direction of travel
         var direction_of_travel = (from_center > h) ? direction_of_travel = 1 : -1;
         // Animate belt moving
+        var dur = function () {
+            var distance = Math.abs(from_center - currentBeltpos);
+            return config.beltSpeed * distance;
+        };
         north.transition()
-            .duration(100)
+            .duration(dur)
             .attr("transform", "translate(0, "+(direction_of_travel * from_center)+")");
         south.transition()
-            .duration(100)
+            .duration(dur)
             .attr("transform", "translate(0, "+(-direction_of_travel * from_center)+")");
+
+        currentBeltpos = from_center;
     };
 
 
@@ -727,10 +735,8 @@
             .attr("height", diameter);
 
     // Web socket setup
-    sm = new SocketManager(function (newdata) {
-        log("Message:", newdata);
-    });
-    sm.connect();
+    sm = new SocketManager(function (newdata) { log("Message:", newdata); });
+    sm.connect(function(s) { if(s) log("Connected to socket"); else log("Failed to connect to socket"); });
 
     buildSurface(svg);
     buildBoom(svg);
@@ -742,7 +748,7 @@
 
     d3.select(".consumeOne").on("click", function() {  execNextJob();  });
     d3.select(".consumeAll").on("click", function() {  execAllJobs();  });
-    d3.select(".consumeStop").on("click", function() {  emergencyStop = true;  });
+    d3.select(".consumeStop").on("click", function() { emergencyStop = true;  });
 
     $(".pen-button").on("click", setPen);
     $(".pen-unset").on("click", unSetPen);

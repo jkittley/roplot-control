@@ -1,0 +1,21 @@
+body {
+    padding: 10px;
+    background-color: #f7f7f7;
+}
+
+#logo img {
+    width: 100%;
+    text-align: center;
+    height: 80px;
+}
+
+#logo {
+    margin-bottom: 30px;
+    margin-top: 50px;
+}
+
+.panel, .list-group {
+    border: solid;
+    border-width: 1px;
+    border-color: #ccc;
+}

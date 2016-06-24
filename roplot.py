@@ -1,12 +1,9 @@
-import socket
+from settings import Settings, SettingsForm, SettingsCarriageForm, SettingsPenForm
 import sys
 import signal
-from flask import Flask
-from flask import render_template, url_for
-from flask_socketio import SocketIO, send, emit
-from flask_wtf import Form
-from wtforms import StringField, IntegerField
-from wtforms.validators import DataRequired
+from flask import Flask, request
+from flask import render_template
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -14,15 +11,6 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 socketio = SocketIO(app)
 
-#
-# FORMS
-#
-
-class SettingsForm(Form):
-    speed = IntegerField('Speed', validators=[DataRequired()])
-    physicalRadius    = IntegerField('Boom Radius', validators=[DataRequired()])
-    physicalDrawStart = IntegerField('Draw Start', validators=[DataRequired()])
-    physicalDrawEnd   = IntegerField('Draw End', validators=[DataRequired()])
 
 #
 # PAGES
@@ -37,11 +25,34 @@ def control():
     return render_template('plotter.html')
 
 @app.route('/settings', methods=['GET', 'POST'])
-def settings():
+def editSettings():
+
+    # Settings = getDB()
+    settings = Settings()
     form = SettingsForm()
-    # if form.validate_on_submit():
-    #     return redirect('/success')
-    return render_template('settings.html', form=form)
+    carriageForm = SettingsCarriageForm()
+    penForm = SettingsPenForm()
+
+    if 'general' in request.form:
+        if form.validate_on_submit():
+            for f in form:
+                settings.set(f.name, f.data)
+
+    if 'carriages' in request.form:
+        print "Carriage form"
+        if carriageForm.validate_on_submit():
+            settings.addUpdateCarriage(carriageForm.carriage_id.data, carriageForm.beltpos.data)
+
+    if 'pen' in request.form:
+        print "penForm form"
+        if penForm.validate_on_submit():
+            settings.addUpdatePen(penForm.pen_id.data, penForm.carriage_id.data, penForm.name.data, penForm.color.data, penForm.pole.data, penForm.xoffset.data)
+
+
+    carriages = settings.getCarriages()
+    pens = settings.getPens()
+    return render_template('settings.html', form=form, carriages=carriages, pens=pens, carriageForm=carriageForm, penForm=penForm)
+
 
 #
 # SOCKETS

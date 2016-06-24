@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RoPlot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-2.2.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <link  rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}"/>
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+
+<div id="logo">
+    <a href="/">
+        <img src="{{  url_for('static', filename='img/logo.svg') }}" />
+    </a>
+</div>
+
+{% block main %}
+{% endblock %}
+
+</body>
+</html>
