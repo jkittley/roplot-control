@@ -4,84 +4,57 @@ import os
 from flask_wtf import Form
 from wtforms import StringField, IntegerField, HiddenField, TextField, SelectField
 from wtforms.validators import DataRequired, NumberRange
+import pickledb
+
+db = TinyDB(Path(os.path.realpath(__file__)).parent.child('settings.json'))
+ba = pickledb.load(Path(os.path.realpath(__file__)).parent.child('settings.db'), False)
 
 class Settings:
 
-    db = TinyDB(Path(os.path.realpath(__file__)).parent.child('settings.json'))
-
-    defaults = [
-        ("rotationSpeed", 10),
-        ("beltSpeed", 10),
-        ("physicalRadius", 1200),
-        ("physicalDrawStart", 200),
-        ("physicalDrawEnd", 1000)
-    ]
-
-    def __init__(self):
-        self.initData()
-        self.removeNotInDefault()
-
-
-    def initData(self):
-        for setting in self.defaults:
-            table = self.getGeneralTable()
-            q = Query()
-            c = table.count(q.type==setting[0])
-            # If there is more than one version of the setting then remove all and return to default
-            if c > 1:
-                print "Error multiple versions of "+str(setting[0])+" found. Deleting all"
-                table.remove(q.type==setting[0])
-                c = 0
-            if c == 0:
-                print "Creating setting from defaults"
-                table.insert({'type': setting[0], 'value': setting[1]})
-
-
-    def removeNotInDefault(self):
-        table = self.getGeneralTable()
-        settingNames = [str(i[0]) for i in self.defaults]
-        q = Query()
-        for s in self.db.all():
-            if s['type'] not in settingNames:
-                print "Invalid setting ", s['type']
-                table.remove(q.type == s['type'])
+    defaults = {
+        "rotationSpeed": 10,
+        "beltSpeed": 10,
+        "physicalRadius": 1200,
+        "physicalDrawStart": 200,
+        "physicalDrawEnd": 1000
+    }
 
 
     def getAll(self):
-        table = self.getGeneralTable()
-        return table.all()
+        out = {}
+        for key, value in self.defaults.iteritems():
+            val = self.get(key)
+            out[key] = val
+        return out
 
 
     def get(self, settingName):
-        table = self.getGeneralTable()
-        q = Query()
-        try:
-            return table.search(q.type == settingName)[0]['value']
-        except IndexError:
-            return None
+        r = ba.get(settingName)
+        if r is not None:
+            return r
+        else:
+            self.set(settingName, self.defaults[settingName])
+            return self.defaults[settingName]
 
     def set(self, settingName, value):
-        table = self.getGeneralTable()
-        q = Query()
-        if table.count(q.type==settingName) == 1:
-            print table.update({'value': int(value)}, q.type==str(settingName))
-            return True
-        else:
-            print "Invalid setting"
-            return False
+        r = ba.set(settingName, value)
+        ba.dump()
+        return r
 
 
 
     # Get tables
 
     def getGeneralTable(self):
-        return self.db.table('basics')
+        tb = db.table('basics')
+        tb.clear_cache()
+        return tb
 
     def getCarriagesTable(self):
-        return self.db.table('carriages')
+        return db.table('carriages')
 
     def getPensTable(self):
-        return self.db.table('pens')
+        return db.table('pens')
 
 
     # Carriages
@@ -171,31 +144,28 @@ class Settings:
 
 
 class SettingsForm(Form):
-    s = Settings()
     general = HiddenField('general')
-    rotationSpeed     = IntegerField('Rotation Speed', default=s.get('rotationSpeed'),      validators=[DataRequired(), NumberRange(0,1000)])
-    beltSpeed         = IntegerField('Belt Speed',     default=s.get('beltSpeed'),          validators=[DataRequired(), NumberRange(0,1000)])
-    physicalRadius    = IntegerField('Boom Radius',    default=s.get('physicalRadius'),     validators=[DataRequired(), NumberRange(100,10000)])
-    physicalDrawStart = IntegerField('Draw Start',     default=s.get('physicalDrawStart'),  validators=[DataRequired(), NumberRange(0,10000)])
-    physicalDrawEnd   = IntegerField('Draw End',       default=s.get('physicalDrawEnd'),    validators=[DataRequired(), NumberRange(0,10000)])
+    rotationSpeed     = IntegerField('Rotation Speed',      validators=[DataRequired(), NumberRange(0,1000)])
+    beltSpeed         = IntegerField('Belt Speed',          validators=[DataRequired(), NumberRange(0,1000)])
+    physicalRadius    = IntegerField('Boom Radius',         validators=[DataRequired(), NumberRange(100,10000)])
+    physicalDrawStart = IntegerField('Draw Start',          validators=[DataRequired(), NumberRange(0,10000)])
+    physicalDrawEnd   = IntegerField('Draw End',            validators=[DataRequired(), NumberRange(0,10000)])
 
 
 class SettingsCarriageForm(Form):
-    s = Settings()
     carriages   = HiddenField('carriages')
-    carriage_id = IntegerField('ID', validators=[DataRequired(), NumberRange(0, 1000)])
-    beltpos = IntegerField('Belt Position', validators=[DataRequired(), NumberRange(0, s.get('physicalRadius'))])
+    carriage_id = IntegerField('ID', validators=[DataRequired(), NumberRange(0, 10000)])
+    beltpos     = IntegerField('Belt Position', validators=[DataRequired(), NumberRange(0, 10000)])
+
 
 class SettingsPenForm(Form):
-    s = Settings()
-    pole_choices  = [('north', 'North'), ('south', 'South')]
-    color_choices = [('red', 'Red'), ('green', 'Green'), ('blue', 'Blue'), ('black', 'Black'), ('orange', 'Orange')]
-    carriage_choices = [ (str(x['id']), str(x['id'])) for x in s.getCarriages()]
-
+    pole_choices = [('north', 'North'), ('south', 'South')]
+    color_choices = [('red', 'Red'), ('green', 'Green'), ('blue', 'Blue'), ('black', 'Black'),
+                             ('orange', 'Orange')]
 
     pen     = HiddenField('pen')
     pen_id  = IntegerField('ID', validators=[DataRequired(), NumberRange(0, 1000)])
-    carriage_id = SelectField('Carriage', choices=carriage_choices)
+    carriage_id = SelectField('Carriage', choices=[])
     name    = StringField('Name', validators=[DataRequired()])
     color   = SelectField('Colour', choices=color_choices)
     pole    = SelectField('Pole', choices=pole_choices)

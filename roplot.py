@@ -12,7 +12,7 @@ app.config['DEBUG'] = True
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 socketio = SocketIO(app)
-
+settings = Settings()
 
 #
 # PAGES
@@ -24,13 +24,9 @@ def index():
 
 @app.route('/control')
 def control():
-    settings = Settings()
-    machine_config = {}
 
     # Basic settings
-    general = settings.getAll()
-    for g in general:
-        machine_config[g['type']] = g['value']
+    machine_config = settings.getAll()
 
     # Carriages & Pens
     machine_config['carriagePairs'] = []
@@ -47,14 +43,24 @@ def control():
     machine_config = json.dumps(machine_config)
     return render_template('plotter.html', machine_config=machine_config)
 
+
 @app.route('/settings', methods=['GET', 'POST'])
 def editSettings():
 
-    # Settings = getDB()
-    settings = Settings()
-    form = SettingsForm()
+    form = SettingsForm(
+        rotationSpeed=settings.get('rotationSpeed'),
+        beltSpeed=settings.get('beltSpeed'),
+        physicalRadius=settings.get('physicalRadius'),
+        physicalDrawStart=settings.get('physicalDrawStart'),
+        physicalDrawEnd=settings.get('physicalDrawEnd')
+    )
     carriageForm = SettingsCarriageForm()
+
     penForm = SettingsPenForm()
+    penForm.carriage_id.choices = [(str(x['id']), str(x['id'])) for x in settings.getCarriages()]
+
+
+
 
     if 'general' in request.form:
         print "Saving general"
