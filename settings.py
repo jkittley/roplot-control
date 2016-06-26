@@ -151,11 +151,37 @@ class SettingsForm(Form):
     physicalDrawStart = IntegerField('Draw Start',          validators=[DataRequired(), NumberRange(0,10000)])
     physicalDrawEnd   = IntegerField('Draw End',            validators=[DataRequired(), NumberRange(0,10000)])
 
+    def validate(self):
+        rv = Form.validate(self)
+        if not rv:
+            return False
+        s = Settings()
+        if int(self.physicalDrawStart.data) > int(self.physicalRadius.data):
+            self.physicalDrawStart.errors.append('Draw start cant be greater than physical radius')
+            return False
+        if int(self.physicalDrawEnd.data) > int(self.physicalRadius.data):
+            self.physicalDrawEnd.errors.append('Draw end cant be greater than physical radius')
+            return False
+        if int(self.physicalDrawStart.data) > int(self.physicalDrawEnd.data):
+            self.physicalDrawStart.errors.append('Draw start cant be greater than end')
+            self.physicalDrawEnd.errors.append('Draw end cant be less than start')
+            return False
+        return True
 
 class SettingsCarriageForm(Form):
     carriages   = HiddenField('carriages')
     carriage_id = IntegerField('ID', validators=[DataRequired(), NumberRange(0, 10000)])
     beltpos     = IntegerField('Belt Position', validators=[DataRequired(), NumberRange(0, 10000)])
+
+    def validate(self):
+        rv = Form.validate(self)
+        if not rv:
+            return False
+        s = Settings()
+        if int(self.beltpos.data) > int(s.get('physicalRadius')):
+            self.beltpos.errors.append('Belt position cant be bigger than physical radius')
+            return False
+        return True
 
 
 class SettingsPenForm(Form):
@@ -170,7 +196,3 @@ class SettingsPenForm(Form):
     pole    = SelectField('Pole', choices=pole_choices)
     xoffset = IntegerField('X offset', validators=[DataRequired(), NumberRange(-100, 100)])
 
-    def pre_validate(self, form=None):
-        print form
-        if form is not None:
-            print form
