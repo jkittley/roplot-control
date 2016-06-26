@@ -59,11 +59,7 @@ def editSettings():
     penForm = SettingsPenForm()
     penForm.carriage_id.choices = [(str(x['id']), str(x['id'])) for x in settings.getCarriages()]
 
-
-
-
     if 'general' in request.form:
-        print "Saving general"
         if form.validate_on_submit():
             for f in form:
                 settings.set(f.name, f.data)

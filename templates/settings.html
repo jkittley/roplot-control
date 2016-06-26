@@ -25,8 +25,8 @@
             });
             $('.pen-edit-button').click(function() {
                 var _this = $(this);
-                var row = _this.closest('.row');
-                $.each(row.children('div'), function(k, v) {
+                var row = _this.closest('tr');
+                $.each(row.children('td'), function(k, v) {
                     var param = $(v).data('param');
                     var value = $(v).text();
                     if (param!==undefined) $('#'+param).val(value);

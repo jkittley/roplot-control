@@ -162,7 +162,6 @@ class SettingsPenForm(Form):
     pole_choices = [('north', 'North'), ('south', 'South')]
     color_choices = [('red', 'Red'), ('green', 'Green'), ('blue', 'Blue'), ('black', 'Black'),
                              ('orange', 'Orange')]
-
     pen     = HiddenField('pen')
     pen_id  = IntegerField('ID', validators=[DataRequired(), NumberRange(0, 1000)])
     carriage_id = SelectField('Carriage', choices=[])
@@ -171,3 +170,7 @@ class SettingsPenForm(Form):
     pole    = SelectField('Pole', choices=pole_choices)
     xoffset = IntegerField('X offset', validators=[DataRequired(), NumberRange(-100, 100)])
 
+    def pre_validate(self, form=None):
+        print form
+        if form is not None:
+            print form
